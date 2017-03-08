@@ -21,7 +21,7 @@ DECam_PGCM is written in Python 2.7.  It makes substantial use of the following 
 
 #### <a name="howtorun"></a>How to run pyExcal?
 
-**Under construction...**
+*Under construction...*
 
 [Back to top.](#top)
 
