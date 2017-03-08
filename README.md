@@ -10,6 +10,7 @@ Purpose:  using a set of nightly standard star observations and lots of overlapp
 * [How to request updates to the code or to the FAQ?](#requests)
 
 ----------------------------------------------------------------------
+
 #### <a name="dependencies"></a>What are the software dependencies?
 
 DECam_PGCM is written in Python 2.7.  It makes substantial use of the following python modules:
@@ -19,6 +20,10 @@ DECam_PGCM is written in Python 2.7.  It makes substantial use of the following 
 <li> pandas (written using pandas 0.15.2, but similar or later versions should also work fine)
 </ul>
 
+[Back to top.](#top)
+
+----------------------------------------------------------------------
+
 #### <a name="howtorun"></a>How to run pyExcal?
 
 *Under construction...*
@@ -26,10 +31,12 @@ DECam_PGCM is written in Python 2.7.  It makes substantial use of the following 
 [Back to top.](#top)
 
 ----------------------------------------------------------------------
+
 #### <a name="requests"></a>How to request updates to the code or to the FAQ?
 
 Please use the [issues](https://github.com/DouglasLeeTucker/DECam_PGCM/issues) to post requests for additions or other updates
 to the code or to this FAQ .
 
-
 [Back to top.](#top)
+
+----------------------------------------------------------------------
