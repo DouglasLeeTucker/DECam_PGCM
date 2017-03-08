@@ -6,7 +6,7 @@ Purpose:  using a set of nightly standard star observations and lots of overlapp
 ## FAQ
 
 * [What are the software dependencies?](#dependencies)
-* [How to run pyExcal?](#howtorun)
+* [How to run DECam_PGCM?](#howtorun)
 * [How to request updates to the code or to the FAQ?](#requests)
 
 ----------------------------------------------------------------------
@@ -24,7 +24,7 @@ DECam_PGCM is written in Python 2.7.  It makes substantial use of the following 
 
 ----------------------------------------------------------------------
 
-#### <a name="howtorun"></a>How to run pyExcal?
+#### <a name="howtorun"></a>How to run DECam_PGCM?
 
 *Under construction...*
 
