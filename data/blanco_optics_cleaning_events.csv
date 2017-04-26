@@ -1,0 +1,38 @@
+# Recorded Blanco optics cleaning events (that I am aware of!).
+# See:
+# https://cdcvs.fnal.gov/redmine/projects/desops/wiki/Log_of_Configuration_Changes
+# https://cdcvs.fnal.gov/redmine/attachments/22419/Blanco_mirror_R&S_followup_13112014.pdf
+# https://cdcvs.fnal.gov/redmine/attachments/22420/Blanco_mirror_R&S_followup_09122014.pdf
+#
+#  Currently, the roughly weekly CO2 cleanings are excluded.
+#  Should they be included?  If so, where to get the schedule?
+#
+# Columns:
+#  date_local: local (civil) date of the event
+#  mjd:        MJD of the event, assuming it occurred at 
+#                  roughly Noon Chilean Standard Time
+#  impact:     rough expected prioritized impact of event on 
+#                  system throughput (1=highest expected impact)
+#  comments:   comments
+# 
+# Version:  2017-04-26
+#
+date_local,mjd,impact,comments
+2011-03-30,55650.6666667,1,Primary mirror re-aluminized
+2011-06-28,55740.6666667,2,Primary mirror washed
+2011-11-10,55875.6666667,2,Primary mirror washed
+2012-12-06,56267.6666667,2,Primary mirror washed
+2013-05-07,56419.6666667,2,Primary mirror washed
+2013-12-05,56631.6666667,2,Primary mirror washed
+2014-06-03,56811.6666667,2,Primary mirror washed
+2014-07-31,56869.6666667,2,Primary mirror washed
+2014-11-13,56974.6666667,2,Primary mirror washed
+2015-03-24,57105.6666667,2,Primary mirror washed
+2015-07-08,57211.6666667,2,Primary mirror washed
+2015-09-23,57288.6666667,2,Primary mirror washed
+2015-12-16,57372.6666667,2,Primary mirror washed
+2016-02-24,57442.6666667,3,C1 inside surface cleaned
+2016-03-09,57456.6666667,2,Primary mirror washed
+2016-08-17,57617.6666667,2,Primary mirror washed
+2016-12-21,57743.6666667,2,Primary mirror washed
+2017-03-22,57834.6666667,3,C1 cleaned inside and out
