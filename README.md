@@ -3,8 +3,6 @@ Dark Energy Camera (DECam) Photometric standards Global Calibration Module (PGCM
 
 Purpose:  using a set of nightly standard star observations and lots of overlapping DECam exposures, photometrically calibrate a large DECam survey. 
 
-Test
-
 ## FAQ
 
 * [What are the software dependencies?](#dependencies)
