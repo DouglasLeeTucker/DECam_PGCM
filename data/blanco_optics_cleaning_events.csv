@@ -4,8 +4,8 @@
 # https://cdcvs.fnal.gov/redmine/attachments/22419/Blanco_mirror_R&S_followup_13112014.pdf
 # https://cdcvs.fnal.gov/redmine/attachments/22420/Blanco_mirror_R&S_followup_09122014.pdf
 #
-#  Currently the roughly weekly CO2 cleanings are excluded.
-#  Should they be included?  If so -- where to get the schedule?
+#  Currently, the roughly weekly CO2 cleanings are excluded.
+#  Should they be included?  If so, where to get the schedule?
 #
 # Columns:
 #  date_local: local (civil) date of the event
