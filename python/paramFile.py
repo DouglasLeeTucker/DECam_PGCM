@@ -6,7 +6,7 @@
 #
 # WARNING:  all values are returned as strings.
 #
-def readPlanFile(fileName, verbose=0):
+def readParamFile(fileName, verbose=0):
 
     import numpy as np
     import os
@@ -17,7 +17,7 @@ def readPlanFile(fileName, verbose=0):
         print """File %s does not exist...""" % (fileName)
         return 1
 
-    planDict = {}
+    paramDict = {}
     with open(fileName,'r') as fin:
 
         for lin in fin:
@@ -28,6 +28,6 @@ def readPlanFile(fileName, verbose=0):
             keyword = lins[0].strip()
             value = lins[1].strip()
             if verbose > 0: print keyword+": "+value
-            planDict[keyword] = value            
+            paramDict[keyword] = value            
             
-    return planDict
+    return paramDict
