@@ -37,14 +37,43 @@ def zeropoints_for_qa(args):
 
     import paramFile
 
-    planDict = paramFile.readParamFile(args.planFile)
+    # Read contents of planFile into python dictionary...
+    planDict = paramFile.readParamFile(args.planFile, args.verbose)
 
-    # Change this:
-    inputFileList = glob.glob('RawData/tert_match_y2a1_rawdata.sv.sorted.?.csv')
+    # Check that all the required keywords were found...
+    requiredKeywordList = ['matchFileListFile', 'qaDir']
+    flag = 0
+    for requiredKeyword in requiredKeywordList:
+        if requiredKeyword not in planDict:
+            print """Required keyword '%s' not in planFile %s""" % (requiredKeyword, args.planFile)
+            flag = flag + 1
+    if flag > 0:
+        print 'Return with error code 1 now...'
+        return 1
 
-    for inputFile in inputFileList:
-        #inputFile = inputFileList[0]
+    # Read in the matchFileListFile...
+    matchFileListFile = planDict['matchFileListFile']
+    if os.path.isfile(matchFileListFile)==False:
+        print """matchFileListFile %s does not exist...""" % (fileName)
+        return 1
+    inputFileArray = np.genfromtxt(matchFileListFile,dtype='str')
+
+    # Create qaDir if it does not already exist...
+    # See 
+    # http://stackoverflow.com/questions/273192/how-to-check-if-a-directory-exists-and-create-it-if-necessary/14364249#14364249 
+    # for avoiding the race condition beteween checking  a directory exists 
+    # and creating the directory... 
+    qaDir = planDict['qaDir']
+    try: 
+        os.makedirs(qaDir)
+    except OSError:
+        if not os.path.isdir(qaDir):
+            raise
+
+    for inputFile in inputFileArray:
+
         print inputFile
+
         baseName = os.path.basename(inputFile)
         baseNameNoExt = os.path.splitext(baseName)[0]
 
@@ -77,7 +106,7 @@ def zeropoints_for_qa(args):
         plt.grid(True)
         ax.grid(color='white')
         #plt.show()
-        outputFile = """%s.dmag_vs_mjd.png"""% (baseNameNoExt)
+        outputFile = """%s/%s.dmag_vs_mjd.png"""% (qaDir, baseNameNoExt)
         fig.savefig(outputFile)
         plt.close()
         del x
@@ -151,7 +180,7 @@ def zeropoints_for_qa(args):
                 cb.set_label('log10(N)')
                 plt.grid(True)
                 ax.grid(color='white')
-                outputFile = """%s.epoch%d.res_vs_airmass.iter%d.png"""% (baseNameNoExt, epoch, iiter)
+                outputFile = """%s/%s.epoch%d.res_vs_airmass.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
                 fig.savefig(outputFile)
                 plt.close()
                 del x
@@ -172,7 +201,7 @@ def zeropoints_for_qa(args):
                 cb.set_label('log10(N)')
                 plt.grid(True)
                 ax.grid(color='white')
-                outputFile = """%s.epoch%d.res_vs_mjd.iter%d.png"""% (baseNameNoExt, epoch, iiter)
+                outputFile = """%s/%s.epoch%d.res_vs_mjd.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
                 fig.savefig(outputFile)
                 plt.close()
                 del x
@@ -184,7 +213,7 @@ def zeropoints_for_qa(args):
                 title = """File=%s; Epoch:%d; RMS=%.3f (Iter%d)""" % (baseName, epoch, stddev, iiter)
                 ax.set_title(title)
                 fig = ax.get_figure()
-                outputFile = """%s.epoch%d.res_hist.iter%d.png"""% (baseNameNoExt, epoch, iiter)
+                outputFile = """%s/%s.epoch%d.res_hist.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
                 fig.savefig(outputFile)
                 plt.close()
 
