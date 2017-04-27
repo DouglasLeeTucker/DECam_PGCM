@@ -1,0 +1,18 @@
+# Plan file for Zeropoints_for_QA.par
+
+# Name of file containing list of input match files:
+matchFileListList Zeropoints_for_QA.txt
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# For following, set to "default" for the default file;
+#  otherwise, provide file name (with filepath):
+#
+# Name of DECam focal plane geometry file:
+decamFile default 
+# Name of data processing "epochs" file:
+epochsFile default
+# Name of Blanco optics cleaning dates file:
+blancoOpticsFile default
+# Name of DES footprint file: 
+round13File default
+
