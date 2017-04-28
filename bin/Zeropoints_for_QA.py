@@ -125,13 +125,15 @@ def zeropoints_for_qa(args):
         baseName = os.path.basename(inputFile)
         baseNameNoExt = os.path.splitext(baseName)[0]
 
-        df = pd.read_csv(inputFile, usecols=['MJD_OBS_2',
+        df = pd.read_csv(inputFile, usecols=['EXPNUM_2',
+                                             'MJD_OBS_2',
                                              'AIRMASS_2',
                                              'FLUX_PSF_2', 
                                              'EXPTIME_2', 
                                              'MAG_PSF_MEDIAN_1'])
 
-        df.rename(columns={'MJD_OBS_2':'mjd', 
+        df.rename(columns={'EXPNUM_2':'expnum', 
+                           'MJD_OBS_2':'mjd', 
                            'AIRMASS_2':'airmass', 
                            'FLUX_PSF_2':'flux_psf',  
                            'EXPTIME_2':'exptime', 
