@@ -41,20 +41,21 @@ def zeropoints_for_qa(args):
     planDict = paramFile.readParamFile(args.planFile, args.verbose)
 
     # Check that all the required keywords were found...
-    requiredKeywordList = ['matchFileListFile', 'qaDir']
+    requiredKeywordList = ['matchFileListFile', 'qaDir', 'blancoOpticsFile', 'epochsFile']
     flag = 0
     for requiredKeyword in requiredKeywordList:
         if requiredKeyword not in planDict:
             print """Required keyword '%s' not in planFile %s""" % (requiredKeyword, args.planFile)
             flag = flag + 1
     if flag > 0:
-        print 'Return with error code 1 now...'
+        print 'Returning with error code 1 now...'
         return 1
 
     # Read in the matchFileListFile...
     matchFileListFile = planDict['matchFileListFile']
     if os.path.isfile(matchFileListFile)==False:
-        print """matchFileListFile %s does not exist...""" % (fileName)
+        print """matchFileListFile %s does not exist...""" % (matchFileListFile)
+        print 'Returning with error code 1 now...'
         return 1
     inputFileArray = np.genfromtxt(matchFileListFile,dtype='str')
 
@@ -69,6 +70,53 @@ def zeropoints_for_qa(args):
     except OSError:
         if not os.path.isdir(qaDir):
             raise
+
+    # Read in the Blanco optics cleaning history file...
+    blancoOpticsFile = planDict['blancoOpticsFile']
+    if blancoOpticsFile.lower() == 'default':
+        # Grab path and name of blanco_optics_cleaning_events.csv file 
+        #  in the DECam_PGCM data directory...
+        #  Is there a better way to do this?
+        #  See also:
+        #  http://stackoverflow.com/questions/779495/python-access-data-in-package-subdirectory
+        # Absolute path for the directory containing this module:
+        moduleAbsPathName = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        blancoOpticsFile = os.path.join(moduleAbsPathName, "data", "blanco_optics_cleaning_events.csv")
+    if os.path.isfile(blancoOpticsFile)==False:
+        print """blancoOpticsFile %s does not exist...""" % (blancoOpticsFile)
+        print 'Returning with error code 1 now...'
+        return 1
+    blancoOpticsDF = pd.read_csv(blancoOpticsFile, comment='#')
+    if args.verbose > 1:
+        print blancoOpticsDF
+
+
+    # Read in the data processing epochs history file...
+    epochsFile = planDict['epochsFile']
+    if epochsFile.lower() == 'default':
+        # Grab path and name of processing_epochs.csv file 
+        #  in the DECam_PGCM data directory...
+        #  Is there a better way to do this?
+        #  See also:
+        #  http://stackoverflow.com/questions/779495/python-access-data-in-package-subdirectory
+        # Absolute path for the directory containing this module:
+        moduleAbsPathName = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        epochsFile = os.path.join(moduleAbsPathName, "data", "processing_epochs.csv")
+    if os.path.isfile(epochsFile)==False:
+        print """epochsFile %s does not exist...""" % (epochsFile)
+        print 'Returning with error code 1 now...'
+        return 1
+    epochsDF = pd.read_csv(epochsFile, comment='#')
+    if args.verbose > 1:
+        print epochsDF
+
+# Combine and sort the dates from the blancoOpticsDF and epochsDF
+# into a single pandas DataFrame (or maybe Series) to be used
+# to split the data into suitable zeropoint epochs... 
+# (e.g., SV1a, SV1b, ...)
+    return 1
+
+
 
     for inputFile in inputFileArray:
 
