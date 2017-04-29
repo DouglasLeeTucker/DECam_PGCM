@@ -134,10 +134,8 @@ def zeropoints_for_qa(args):
     if args.verbose > 1:
         print combEpochsDF
 
-# Combine and sort the dates from the blancoOpticsDF and epochsDF
-# into a single pandas DataFrame (or maybe Series) to be used
-# to split the data into suitable zeropoint epochs... 
-# (e.g., SV1a, SV1b, ...)
+
+
     return 1
 
 
@@ -188,6 +186,22 @@ def zeropoints_for_qa(args):
 
         # Save df in df_orig for future reference...
         df_orig = df.copy()
+
+
+####
+# Change df1, df2, "for epoch in [1, 2]:" to loop through combEpochsDF:
+        #for index, row in combEpochsDF.iterrows():
+        #    print index, row['name'], row['mjd_start'], row['mjd_end']
+        #    mjd_start = row['mjd_start']
+        #    mjd_end = row['mjd_end']
+        #
+        #    df = df_orig[ ( (df.mjd > =mjd_start) & (df.mjd < mjd_end) ) ].copy()
+        #    if df.mjd.size() < 1: continue
+        #Maybe add other constraints, like multiple unique airmasses and 
+        #multiple unique time stamps, to avoid problems with fits.
+
+####
+
 
         # Split df into two epochs (split at Dec 6 mirror washing)...
         df1 = df_orig[df.mjd<56268.0].copy()
