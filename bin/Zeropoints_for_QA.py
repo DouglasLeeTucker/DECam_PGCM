@@ -41,7 +41,12 @@ def zeropoints_for_qa(args):
     planDict = paramFile.readParamFile(args.planFile, args.verbose)
 
     # Check that all the required keywords were found...
-    requiredKeywordList = ['matchFileListFile', 'qaDir', 'blancoOpticsFile', 'epochsFile']
+    requiredKeywordList = ['matchFileListFile', 
+                           'qaDir', 
+                           'blancoOpticsFile', 
+                           'procEpochsFile',
+                           'combEpochsFile']
+
     flag = 0
     for requiredKeyword in requiredKeywordList:
         if requiredKeyword not in planDict:
@@ -92,8 +97,8 @@ def zeropoints_for_qa(args):
 
 
     # Read in the data processing epochs history file...
-    epochsFile = planDict['epochsFile']
-    if epochsFile.lower() == 'default':
+    procEpochsFile = planDict['procEpochsFile']
+    if procEpochsFile.lower() == 'default':
         # Grab path and name of processing_epochs.csv file 
         #  in the DECam_PGCM data directory...
         #  Is there a better way to do this?
@@ -101,14 +106,33 @@ def zeropoints_for_qa(args):
         #  http://stackoverflow.com/questions/779495/python-access-data-in-package-subdirectory
         # Absolute path for the directory containing this module:
         moduleAbsPathName = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        epochsFile = os.path.join(moduleAbsPathName, "data", "processing_epochs.csv")
-    if os.path.isfile(epochsFile)==False:
-        print """epochsFile %s does not exist...""" % (epochsFile)
+        procEpochsFile = os.path.join(moduleAbsPathName, "data", "processing_epochs.csv")
+    if os.path.isfile(procEpochsFile)==False:
+        print """procEpochsFile %s does not exist...""" % (procEpochsFile)
         print 'Returning with error code 1 now...'
         return 1
-    epochsDF = pd.read_csv(epochsFile, comment='#')
+    procEpochsDF = pd.read_csv(procEpochsFile, comment='#')
     if args.verbose > 1:
-        print epochsDF
+        print procEpochsDF
+
+    # Read in the combined epochs history file...
+    combEpochsFile = planDict['combEpochsFile']
+    if combEpochsFile.lower() == 'default':
+        # Grab path and name of combined_epochs.csv file 
+        #  in the DECam_PGCM data directory...
+        #  Is there a better way to do this?
+        #  See also:
+        #  http://stackoverflow.com/questions/779495/python-access-data-in-package-subdirectory
+        # Absolute path for the directory containing this module:
+        moduleAbsPathName = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        combEpochsFile = os.path.join(moduleAbsPathName, "data", "combined_epochs.csv")
+    if os.path.isfile(combEpochsFile)==False:
+        print """combEpochsFile %s does not exist...""" % (combEpochsFile)
+        print 'Returning with error code 1 now...'
+        return 1
+    combEpochsDF = pd.read_csv(combEpochsFile, comment='#')
+    if args.verbose > 1:
+        print combEpochsDF
 
 # Combine and sort the dates from the blancoOpticsDF and epochsDF
 # into a single pandas DataFrame (or maybe Series) to be used
