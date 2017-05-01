@@ -9,6 +9,7 @@ from scipy import interpolate
 import glob
 import math
 import os
+import shutil
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
@@ -135,11 +136,7 @@ def zeropoints_for_qa(args):
         print combEpochsDF
 
 
-
-    return 1
-
-
-
+    # Loop through the input files in inpuFileArray
     for inputFile in inputFileArray:
 
         print inputFile
@@ -148,6 +145,7 @@ def zeropoints_for_qa(args):
         baseNameNoExt = os.path.splitext(baseName)[0]
 
         df = pd.read_csv(inputFile, usecols=['EXPNUM_2',
+                                             'BAND_2',
                                              'MJD_OBS_2',
                                              'AIRMASS_2',
                                              'FLUX_PSF_2', 
@@ -155,6 +153,7 @@ def zeropoints_for_qa(args):
                                              'MAG_PSF_MEDIAN_1'])
 
         df.rename(columns={'EXPNUM_2':'expnum', 
+                           'BAND_2':'band', 
                            'MJD_OBS_2':'mjd', 
                            'AIRMASS_2':'airmass', 
                            'FLUX_PSF_2':'flux_psf',  
@@ -162,6 +161,20 @@ def zeropoints_for_qa(args):
                            'MAG_PSF_MEDIAN_1':'mag_std'
                            }, inplace=True)
     
+        # Check to ensure that there is only one type of filter band in this data file...
+        bandsList = df.band.unique() 
+        if bandsList.size > 1:
+            print 
+            print """inputFile %s appears to contain multiple bands (%s)...  Skipping""" % \
+                (inputFile, bandsList)
+            print 
+            continue
+        else:
+            band = bandsList[0]
+            print """inputFile %s contains data for band (%s)...""" % \
+                (inputFile, band)
+
+        # Add dmag [= mag_std - mag_inst] column
         df['dmag'] = df['mag_std'] + 2.5*np.log10(df['flux_psf']/df['exptime'])
 
         # Let's plot a 2D histogram of log(Nobs), binned by dmag and airmass...
@@ -187,45 +200,49 @@ def zeropoints_for_qa(args):
         # Save df in df_orig for future reference...
         df_orig = df.copy()
 
-
-####
-# Change df1, df2, "for epoch in [1, 2]:" to loop through combEpochsDF:
-        #for index, row in combEpochsDF.iterrows():
-        #    print index, row['name'], row['mjd_start'], row['mjd_end']
-        #    mjd_start = row['mjd_start']
-        #    mjd_end = row['mjd_end']
+        ## Split df into two epochs (split at Dec 6 mirror washing)...
+        #df1 = df_orig[df.mjd<56268.0].copy()
+        #df2 = df_orig[df.mjd>=56268.0].copy()
         #
-        #    df = df_orig[ ( (df.mjd > =mjd_start) & (df.mjd < mjd_end) ) ].copy()
-        #    if df.mjd.size() < 1: continue
-        #Maybe add other constraints, like multiple unique airmasses and 
-        #multiple unique time stamps, to avoid problems with fits.
+        #for epoch in [1, 2]:
 
-####
+        # Loop through combEpochsDF, peforming fits for
+        #  epochs that have data in this inputFile... 
+        for index, row in combEpochsDF.iterrows():
 
+            epoch = row['name']
+            mjd_start = row['mjd_start']
+            mjd_end = row['mjd_end']
 
-        # Split df into two epochs (split at Dec 6 mirror washing)...
-        df1 = df_orig[df.mjd<56268.0].copy()
-        df2 = df_orig[df.mjd>=56268.0].copy()
-
-
-        #
-        # Perform iterative sigma-clipping fit...
-        # 
-
-        for epoch in [1, 2]:
-
-            print "Epoch:", epoch, 
-
-            if epoch is 1:
-                df = df1
-            elif epoch is 2:
-                df = df2
-            else:
+            print index, epoch, mjd_start, mjd_end
+        
+            # Extract data from inputFile that lie within this epoch...
+            df = df_orig[ ( (df_orig.mjd >= mjd_start) & (df_orig.mjd < mjd_end) ) ].copy()
+            # Are there at least 10 entries left?  If not, skip...
+            if df.mjd.size < 10: 
+                if args.verbose > 1:
+                    print """WARNING:  Only %d entries in epoch %s...  skipping...""" % \
+                          (df.mjd.size, epoch)
+                del df
                 continue
+            # Are there at least 2 unique values of the airmass left?  If not, skip...
+            if df.airmass.unique().size < 2: 
+                if args.verbose > 1:
+                    print """WARNING:  Fewer than 2 unique airmasses for entries in epoch %s...  skipping...""" % \
+                          (epoch)
+                del df
+                continue
+            # Maybe add other constraints, multiple unique time stamps or expnums, 
+            #  to avoid problems with fits.
 
+
+            #
+            # Perform iterative sigma-clipping fit for this epoch...
+            #
 
             # Create initial (and generous)  mask...
-            mjd0 = 1.0*int(df['mjd'].min())
+            #mjd0 = 1.0*int(df['mjd'].min())
+            mjd0 = 1.0*int(mjd_start+0.5)
             df['dmjd'] = df['mjd'] - mjd0
             print "mjd0:", mjd0
             mask1 = ( np.abs( df['dmag'] - df['dmag'].median() ) < 1.0 )
@@ -246,9 +263,33 @@ def zeropoints_for_qa(args):
                 # make a copy of original df, overwritting the old one...
                 df = df[mask].copy()
 
-                p,rms = aTmCamTestFit(df.loc[:,'dmjd'], df.loc[:,'airmass'], df.loc[:,dmag])
-                df.loc[:,'res'] = residuals(p,df.loc[:,'dmjd'],df.loc[:,'airmass'],df.loc[:,dmag])
+                # Perform fit...
+                outputFile = """%s/%s.%s.fitlog.iter%d.txt"""% (qaDir, baseNameNoExt, epoch, iiter)
+                p,rms = aTmCamTestFit(df.loc[:,'dmjd'], df.loc[:,'airmass'], df.loc[:,dmag], outputFile)
 
+                # Append a line to outputFile...
+                fout = open(outputFile, 'a')
+                if p[1] < 0.0: 
+                    sign1 = ''
+                else:
+                    sign1 = '+'
+                if p[2] < 0.0: 
+                    sign2 = ''
+                else:
+                    sign2 = '+'
+                outputLine = """%s (MJD%.4f-%.4f) Fit Equation (%s-band):  dmag = %.4f %s %.4f*(MJD-%.4f) %s %.4f*AIRMASS    (RMS: %.4f)\n""" % \
+                    (epoch, mjd_start, mjd_end, band, p[0], sign1, p[1], mjd0, sign2, p[2], rms)
+                print outputLine
+                fout.write(outputLine)
+                fout.close()
+
+                # If this is the final iteration, copy the outputFile to the "final" output file
+                if iiter == niter:
+                    finalOutputFile = """%s/%s.%s.fitlog.final.txt"""% (qaDir, baseNameNoExt, epoch)
+                    shutil.copy (outputFile, finalOutputFile)
+                
+                # Calculate residuals and estimate new mask...
+                df.loc[:,'res'] = residuals(p,df.loc[:,'dmjd'],df.loc[:,'airmass'],df.loc[:,dmag])
                 stddev = df['res'].std()
                 mask = (np.abs(df.res)< nsigma*stddev)
     
@@ -259,7 +300,7 @@ def zeropoints_for_qa(args):
                 ax=axs
                 hb = ax.hexbin(x, y, gridsize=100, bins='log', cmap='inferno')
                 #ax.axis([xmin, xmax, ymin, ymax])
-                title = """File=%s; Epoch:%d; RMS=%.3f (Iter%d)""" % (baseName, epoch, stddev, iiter)
+                title = """File=%s; Epoch:%s; RMS=%.3f (Iter%d)""" % (baseName, epoch, stddev, iiter)
                 ax.set_title(title)
                 ax.set_xlabel("airmass")
                 ylabel="""%sres"""  % (dmag)
@@ -268,11 +309,16 @@ def zeropoints_for_qa(args):
                 cb.set_label('log10(N)')
                 plt.grid(True)
                 ax.grid(color='white')
-                outputFile = """%s/%s.epoch%d.res_vs_airmass.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
+                outputFile = """%s/%s.%s.res_vs_airmass.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
                 fig.savefig(outputFile)
                 plt.close()
                 del x
                 del y
+
+                # If this is the final iteration, copy the outputFile to the "final" output file
+                if iiter == niter:
+                    finalOutputFile = """%s/%s.%s.res_vs_airmass.final.png"""% (qaDir, baseNameNoExt, epoch)
+                    shutil.copy (outputFile, finalOutputFile)
 
                 # Output plot of resdiduals vs. MJD...
                 x=df['mjd']
@@ -280,7 +326,7 @@ def zeropoints_for_qa(args):
                 fig, axs = plt.subplots(ncols=1)
                 ax=axs
                 hb = ax.hexbin(x, y, gridsize=100, bins='log', cmap='inferno')
-                title = """File=%s; Epoch:%d; RMS=%.3f (Iter%d)""" % (baseName, epoch, stddev, iiter)
+                title = """File=%s; Epoch:%s; RMS=%.3f (Iter%d)""" % (baseName, epoch, stddev, iiter)
                 ax.set_title(title)
                 ax.set_xlabel("MJD")
                 ylabel="""%sres"""  % (dmag)
@@ -289,23 +335,37 @@ def zeropoints_for_qa(args):
                 cb.set_label('log10(N)')
                 plt.grid(True)
                 ax.grid(color='white')
-                outputFile = """%s/%s.epoch%d.res_vs_mjd.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
+                outputFile = """%s/%s.%s.res_vs_mjd.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
                 fig.savefig(outputFile)
                 plt.close()
                 del x
                 del y
 
+                # If this is the final iteration, copy the outputFile to the "final" output file
+                if iiter == niter:
+                    finalOutputFile = """%s/%s.%s.res_vs_mjd.final.png"""% (qaDir, baseNameNoExt, epoch)
+                    shutil.copy (outputFile, finalOutputFile)
+
+
                 # Output histogram of resdiduals...
                 ax=df.hist('res', grid=True, bins=100)
                 ax=df['res'].hist(grid=True, bins=100)
-                title = """File=%s; Epoch:%d; RMS=%.3f (Iter%d)""" % (baseName, epoch, stddev, iiter)
+                title = """File=%s; Epoch:%s; RMS=%.3f (Iter%d)""" % (baseName, epoch, stddev, iiter)
                 ax.set_title(title)
                 fig = ax.get_figure()
-                outputFile = """%s/%s.epoch%d.res_hist.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
+                outputFile = """%s/%s.%s.res_hist.iter%d.png"""% (qaDir, baseNameNoExt, epoch, iiter)
                 fig.savefig(outputFile)
                 plt.close()
 
+                # If this is the final iteration, copy the outputFile to the "final" output file
+                if iiter == niter:
+                    finalOutputFile = """%s/%s.%s.res_hist.final.png"""% (qaDir, baseNameNoExt, epoch)
+                    shutil.copy (outputFile, finalOutputFile)
+
+
             #endfor
+
+            del df
 
         #endfor
 
@@ -334,7 +394,11 @@ def residuals(p,dmjd_array,airmass_array,dmag_array):
 
 #--------------------------------------------------------------------------
 # Fitting code:
-def aTmCamTestFit(dmjd_array, airmass_array, dmag_array):
+def aTmCamTestFit(dmjd_array, airmass_array, dmag_array, outputFile=None):
+
+    if outputFile is not None:
+        # Should really verify if outputFile is a valid path... 
+        fout = open(outputFile, 'w')
 
     # Calculate the median of dmag for use as an initial guess
     # for the overall zeropoint offset..
@@ -346,22 +410,32 @@ def aTmCamTestFit(dmjd_array, airmass_array, dmag_array):
     # Initial parameter values
     p0 = [mdn, 0.0, 0.0]
 
-    print 
-    print 'Initial parameter values:  ', p0
+    outputLine = """\nInitial parameter values:  %s\n""" % (p0)
+    print outputLine,
+    if outputFile is not None:
+        fout.write(outputLine)
+    #print 
+    #print 'Initial parameter values:  ', p0
 
-    #print fp(p0,dmjd_array,airmass_array)
-    #print residuals(p0,dmjd_array,airmass_array,dmag_array)
 
     # Perform fit
 
     p,cov,infodict,mesg,ier = leastsq(residuals, p0, args=(dmjd_array, airmass_array, dmag_array), maxfev=10000, full_output=1)
 
     if ( ier>=1 and ier <=4):
-        print "Converged"
+        outputLine = 'Converged\n'
+        print outputLine,
+        if outputFile is not None:
+            fout.write(outputLine)
+        #print "Converged"
     else:
-        print "Not converged"
-        print mesg
-
+        outputLine = """Not converged\n%s\n""" (mesg)
+        print outputLine,
+        if outputFile is not None:
+            fout.write(outputLine)
+        #print "Not converged"
+        #print mesg
+        raise ValueError('scipy.optimize.leastsq fit did not converge.')   
 
     # Calculate some descriptors of the fit 
     # (similar to the output from gnuplot 2d fits)
@@ -370,11 +444,19 @@ def aTmCamTestFit(dmjd_array, airmass_array, dmag_array):
     dof=len(dmag_array)-len(p)
     rms=math.sqrt(chisq/dof)
     
-    print "Converged with chi squared ",chisq
-    print "degrees of freedom, dof ", dof
-    print "RMS of residuals (i.e. sqrt(chisq/dof)) ", rms
-    print "Reduced chisq (i.e. variance of residuals) ", chisq/dof
-    print
+    outputLine1 = """Converged with chi squared %g\n""" % (chisq)
+    outputLine2 = """degrees of freedom, dof %d\n""" % (dof)
+    outputLine3 = """RMS of residuals (i.e. sqrt(chisq/dof)) %g\n""" % (rms)
+    outputLine4 = """Reduced chisq (i.e. variance of residuals) %g\n""" % (chisq/dof)
+    outputLine = outputLine1+outputLine2+outputLine3+outputLine4+'\n'
+    print outputLine,
+    if outputFile is not None:
+        fout.write(outputLine)
+    #print "Converged with chi squared ",chisq
+    #print "degrees of freedom, dof ", dof
+    #print "RMS of residuals (i.e. sqrt(chisq/dof)) ", rms
+    #print "Reduced chisq (i.e. variance of residuals) ", chisq/dof
+    #print
 
 
     # uncertainties are calculated as per gnuplot, "fixing" the result
@@ -382,27 +464,56 @@ def aTmCamTestFit(dmjd_array, airmass_array, dmag_array):
     # values at min match gnuplot
     print "Fitted parameters at minimum, with 68% C.I.:"
     for i,pmin in enumerate(p):
-        print "%-10s %13g +/- %13g   (%5f percent)" % (pname[i],pmin,math.sqrt(cov[i,i])*math.sqrt(chisq/dof),100.*math.sqrt(cov[i,i])*math.sqrt(chisq/dof)/abs(pmin))
-    print
+        outputLine = """%-10s %13g +/- %13g   (%5f percent)\n""" % \
+            (pname[i],pmin,math.sqrt(cov[i,i])*math.sqrt(chisq/dof),\
+                 100.*math.sqrt(cov[i,i])*math.sqrt(chisq/dof)/abs(pmin))
+        print outputLine,
+        if outputFile is not None:
+            fout.write(outputLine)
+        #print "%-10s %13g +/- %13g   (%5f percent)" % (pname[i],pmin,math.sqrt(cov[i,i])*math.sqrt(chisq/dof),100.*math.sqrt(cov[i,i])*math.sqrt(chisq/dof)/abs(pmin))
+    #print
 
-
-    print "Correlation matrix:"
     # correlation matrix close to gnuplot
-    print "               ",
-    for i in range(len(pname)): print "%-10s" % (pname[i],),
-    print
+    outputLine = """\nCorrelation matrix:\n"""
+    outputLine = outputLine + "               "
+    for i in range(len(pname)): 
+        outputSnippet = "%-10s" % (pname[i])
+        outputLine = outputLine + outputSnippet
+    outputLine = outputLine + '\n'
     for i in range(len(p)):
-        print "%-10s" % pname[i],
+        outputSnippet = "%-10s" % (pname[i])
+        outputLine = outputLine + outputSnippet
         for j in range(i+1):
-	    print "%10f" % (cov[i,j]/math.sqrt(cov[i,i]*cov[j,j]),),
+	    outputSnippet = "%10f" % (cov[i,j]/math.sqrt(cov[i,i]*cov[j,j]))
+            outputLine = outputLine + outputSnippet
         #endfor
-        print
+        outputLine = outputLine + '\n'
     #endfor
-
-    print
-    print
-    print
+    outputLine = outputLine + '\n\n\n'
+    print outputLine, 
+    if outputFile is not None:
+        fout.write(outputLine)
     
+
+    #print "Correlation matrix:"
+    #print "               ",
+    #for i in range(len(pname)): print "%-10s" % (pname[i],),
+    #print
+    #for i in range(len(p)):
+    #    print "%-10s" % pname[i],
+    #    for j in range(i+1):
+    #        print "%10f" % (cov[i,j]/math.sqrt(cov[i,i]*cov[j,j]),),
+    #    #endfor
+    #    print
+    ##endfor
+    #
+    #print
+    #print
+    #print
+    
+    if outputFile is not None:
+        fout.close()
+
     return p, rms
 
 
