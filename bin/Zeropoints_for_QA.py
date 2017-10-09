@@ -63,7 +63,17 @@ def zeropoints_for_qa(args):
         print """matchFileListFile %s does not exist...""" % (matchFileListFile)
         print 'Returning with error code 1 now...'
         return 1
-    inputFileArray = np.genfromtxt(matchFileListFile,dtype='str')
+    # np.genfromtxt yielded some issues downstream when 
+    #  matchFileListFile only contained a single entry, 
+    #  so here we go back to the basics!...
+    inputFileList = []
+    with open(matchFileListFile,'r') as fin:
+        for lin in fin:
+            # Skip commented out lines...
+            if lin[0] == '#': continue
+            lins=lin.strip().split()
+            inputFileList.append(lins[0])
+    inputFileArray = np.array(inputFileList)
 
     # Create qaDir if it does not already exist...
     # See 
@@ -177,6 +187,12 @@ def zeropoints_for_qa(args):
         # Add dmag [= mag_std - mag_inst] column
         df['dmag'] = df['mag_std'] + 2.5*np.log10(df['flux_psf']/df['exptime'])
 
+        # Remove any entries with weird or extreme airmasses...
+        mask = (df.airmass >=1.0) & (df.airmass < 3.0)
+        df = df[mask]
+
+        # Remove exposures with noticeably large variation in ccd-to-ccd ZPs...
+
         # Let's plot a 2D histogram of log(Nobs), binned by dmag and airmass...
         x=df.mjd
         y=df.dmag
@@ -262,6 +278,11 @@ def zeropoints_for_qa(args):
 
                 # make a copy of original df, overwritting the old one...
                 df = df[mask].copy()
+
+                #
+                # NEED TO CHECK IF THERE ARE ENOUGH DATA OVER A GOOD ENOUGH RANGE
+                # TO PERFORM FIT (OR TO PERFORM SOME VARIATION OF FIT)
+                # Also clip expnums based on the median ZP and rms of CCD-to-CCD rms's of the expnum...
 
                 # Perform fit...
                 outputFile = """%s/%s.%s.fitlog.iter%d.txt"""% (qaDir, baseNameNoExt, epoch, iiter)
