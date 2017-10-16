@@ -7,7 +7,7 @@
     blacklist_query.py --help
 
     blacklist_query.py --tag Y4A1_FINALCUT \
-                         --outputFile y4a1_rawdata.expinfo.csv \
+                         --outputFile y4a1_rawdata.y4.blacklist.csv \
                          --verbose 2
     
     """
