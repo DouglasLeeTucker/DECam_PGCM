@@ -133,6 +133,9 @@ def rawdata_se_objects_split(args):
         # Trim leading and trailing white space from the FILENAME column...
         df['FILENAME'] = df['FILENAME'].str.strip()
 
+        # Trim leading and trailing white space from the BAND column...
+        df['BAND'] = df['BAND'].str.strip()
+
         # If this is the first (valid) file, create initial 
         #   output files (empty except for the CSV header)...
         if firstFile is True:
