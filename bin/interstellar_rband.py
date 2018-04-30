@@ -208,7 +208,8 @@ def rb_approx(wavelength_array, response_array, flam_array, rlaw_array, c, N):
     #   for Rlam in the limit of small E(B-V) [hence the use of ebv=1.0e-6 above]...
     numerator = np.sum(wavelength_array * response_array * flam_array * rlaw_array)
     denominator = np.sum(wavelength_array * response_array * flam_array )
-    approx_value = c * N * numerator / denominator
+    approx_vpwd
+alue = c * N * numerator / denominator
 
     return approx_value
 
