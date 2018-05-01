@@ -1,0 +1,25 @@
+# Plan file for interstellar_Rband.py.
+#  Replace values with the word 'default' (no quotation marks)
+#  to make use of the default values for these parameters as 
+#  included in interstellar_rband.py.... 
+
+# Bandpass information:
+bandList fuv,nuv  #comma-separated list with no spaces
+bandpassFile /usrdevel/dp0/dtucker/GitHub/DECam_PGCM/data/bandpasses/GALEX.csv
+
+law  fitzpatrick99
+Rv  3.1
+
+# Value for "E(B-V)/A(1micron)"; 
+#  see Appendix of Schlafly et al. 2010.
+c  1.319
+
+# Normalization factor for map E(B-V)'s; 
+#  see Appendices of Schlafly et al. 2010 and Schlafly & Finkbeiner 2011.
+# For SFD98 maps:
+N  0.78
+# For Planck13 and Lenz17 maps:
+#N  1.00
+
+# E(B-V) value for the full calculation of R_band
+ebv  1.0e-6   # Here, we use the very-low extinction limit
