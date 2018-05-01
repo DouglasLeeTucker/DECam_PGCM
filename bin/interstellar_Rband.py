@@ -14,19 +14,19 @@ def main():
 
     """Create command line arguments"""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--planFile', help='name of the input plan file', default='interstellar_rband.par')
+    parser.add_argument('--planFile', help='name of the input plan file', default='interstellar_Rband.par')
     parser.add_argument('--verbose', help='verbosity level of output to screen (0,1,2,...)', default=0, type=int)
     args = parser.parse_args()
 
     if args.verbose > 0: print args
 
-    status = interstellar_rband(args)
+    status = interstellar_Rband(args)
 
     return status
 
 #--------------------------------------------------------------------------
 
-def interstellar_rband(args):
+def interstellar_Rband(args):
 
     import os
 
