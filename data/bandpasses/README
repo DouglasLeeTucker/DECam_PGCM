@@ -8,4 +8,19 @@ various photometric systems:
   SDSS standard bandpasses, circa 2004, from 
   Doi et al. 2010, AJ, 139, 1628 (Table 4).
 
- 
+* GAIA_DR1.csv
+  Nominal, pre-launch passbands (used for GAIA DR1)
+  https://www.cosmos.esa.int/web/gaia/transmissionwithoriginal
+
+* GAIA_DR2.csv 
+  Gaia DR2 passbands used for the magnitudes published in Gaia DR2 (July 2017).
+  https://www.cosmos.esa.int/web/gaia/iow_20180316
+
+* GAIA_DR2_revised.csv
+  Gaia DR2 revised passbands (Oct 2017).
+  https://www.cosmos.esa.int/web/gaia/iow_20180316
+
+* GALEX.csv
+  Post-launch response curves for the GALEX fuv and nuv filters.
+  https://asd.gsfc.nasa.gov/archive/galex/Documents/PostLaunchResponseCurveData.html
+
