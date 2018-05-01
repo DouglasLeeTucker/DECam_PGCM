@@ -1,0 +1,11 @@
+Instrumental+atmospheric responses for standard bandpasses from 
+various photometric systems:
+
+* DES_STD_BANDPASSES_Y3A2_ugrizY.test.csv
+  DES ugrizY standard bandpasses as of Y3A2.  
+
+* SDSS_Doi2010_Table4.csv
+  SDSS standard bandpasses, circa 2004, from 
+  Doi et al. 2010, AJ, 139, 1628 (Table 4).
+
+ 
