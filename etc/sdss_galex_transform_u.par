@@ -1,0 +1,22 @@
+# Plan file for sdss_galex_transform_u.py.
+#  Replace values with the word 'default' (no quotation marks)
+#  to make use of the default values for these parameters as 
+#  included in interstellar_rband.py.... 
+
+# Order of polynomial fits...
+norder 2
+
+# Sigma-clipping parameters...
+nsigma 3.0
+niter 3
+
+# Identify directory containing the GALEX/SDSS match file(s)...
+matchDir default
+
+# Name of the GALEX/SDSS match file in matchDir
+matchFile default
+
+# Name of the fit results output file...
+resultsFile default
+
+
