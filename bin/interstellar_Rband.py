@@ -148,7 +148,11 @@ def interstellar_Rband(args):
 
 
     delta_wavelength = 2.5 # angstroms
-    wavelength_array = np.arange(2600, 25000 + delta_wavelength, delta_wavelength)
+    # Temporary kludge for GALEX fuv, nuv bandpasses:
+    if ( df_resp.LAMBDA.min() > 1000.) and  (df_resp.LAMBDA.max() < 3600.):
+        wavelength_array = np.arange(1000, 3600 + delta_wavelength, delta_wavelength)
+    else:
+        wavelength_array = np.arange(2600, 25000 + delta_wavelength, delta_wavelength)
     flam_array = flam(wavelength_array)
     rlaw_array = rlaw(1. / wavelength_array)
     #rlaw_array = rlaw(wavelength_array)
