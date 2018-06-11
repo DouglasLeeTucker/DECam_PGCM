@@ -24,6 +24,18 @@ various photometric systems:
   Post-launch response curves for the GALEX fuv and nuv filters.
   https://asd.gsfc.nasa.gov/archive/galex/Documents/PostLaunchResponseCurveData.html
 
-* APASS, SkyMapper, PanSTARRS, Johnson-Cousins, ...
+* UBVRcIc
+  Table 1 from Bessell & Murphy, PASP, 124, 140 (via CDS).
+  B-band response values at intermediate wavelengths linear interpolated to 
+    match overlapping U-band wavelengths.
+
+
+* HpBTVT (Hipparcos and Tycho bands)
+  Table 2 from Bessell & Murphy, PASP, 124, 140 (via CDS).
+  Hp-band response values at intermediate wavelengths linear interpolated to 
+    match overlapping BT and VT-band wavelengths.
+
+
+* APASS, 2MASS, SkyMapper, PanSTARRS
 
 
