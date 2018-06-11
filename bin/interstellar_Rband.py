@@ -114,6 +114,28 @@ def interstellar_Rband(args):
         print 'ebv: ', ebv
 
     
+    #  Extract the spectrum type...
+    #  (Default is flat, i.e., Flam=const..)
+    if planDict['spectrumType'].lower() == 'default':
+        spectrumType = 'flat'
+    else:
+        spectrumType = planDict['spectrumType']
+    if args.verbose > 0:
+        print 'spectrumType: ', spectrumType
+
+
+    #  Extract the name of the spectrum file...
+    #  (ignored if spectrumType=flat)
+    if spectrumType.lower() != 'flat':
+        spectrumFile = planDict['spectrumFile']
+        if os.path.isfile(spectrumFile)==False:
+            print """spectrumFile %s does not exist...""" % (spectrumFile)
+            print 'Returning with error code 1 now...'
+            return 1
+        if args.verbose > 0:
+            print 'spectrumFile: ', spectrumFile
+
+
     #  Extract the name of the bandpassFile...
     #  (Default is the bandpass file in the DECam_PGCM/data directory.)
     bandpassFile = planDict['bandpassFile']
@@ -134,9 +156,18 @@ def interstellar_Rband(args):
         print 'bandpassFile: ', bandpassFile
 
 
+    # Read bandpass file into pandas dataframe...
     df_resp = pd.read_csv(bandpassFile, comment='#')
+
+    # Get rlaw...
     rlaw = reddening.getReddeningLaw(inv=True)
-    flam = spectrum.getSpectrumFlat()
+
+    # Get spectrum...
+    if spectrumType.lower() == 'flat':
+        flam = spectrum.getSpectrumFlat()
+    else:
+        flam = spectrum.getSpectrumSynphot(spectrumFile, fluxFactor=1.0)
+
 
     # For purposes of debugging...
     if args.verbose > 0:
