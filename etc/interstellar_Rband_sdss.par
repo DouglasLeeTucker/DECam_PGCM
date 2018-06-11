@@ -7,6 +7,17 @@
 bandList  u,g,r,i,z  #comma-separated list with no spaces
 bandpassFile /usrdevel/dp0/dtucker/GitHub/DECam_PGCM/data/bandpasses/SDSS_Doi2010_Table4.csv
 
+# Object spectrum (Flam):
+#  spectrumType:  "flat" (Flam=const) or "synphot"
+#  spectrumFile:  be sure to include relative or full path if spectrumFile
+#                 is not in the current directory
+#                 (use a dummy value if spectrumType is "flat")
+#spectrumType flat
+#spectrumFile none
+spectrumType synphot
+spectrumFile ./c26202_stisnic_007.fits
+
+# Extinction law:
 law  fitzpatrick99
 Rv  3.1
 
