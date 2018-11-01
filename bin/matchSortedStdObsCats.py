@@ -10,10 +10,17 @@ Note that it is possible for multiple entries from the observed
 catalog to be matched to a single entry from the standard star 
 catalog.
 
-CAVEAT:  current algorithm has issues if the separation between 
-         individual standard stars is less than the match 
-         tolerance radius.  (See section in the code on finding 
-         the first good match.)
+CAVEATS:  current algorithm has issues if the separation between 
+          individual standard stars is less than the match 
+          tolerance radius.  (See section in the code on finding 
+          the first good match.)
+
+          2018.07.31:  
+             matchSortedStdObsCats.py seems to be behaving oddly for the
+             Y3A2_MISC_V2 and Y3A2_MISC_V3 matches to the FGCM standards,
+             not finding all the matches (indeed, seeming to be behaving
+             like matchSorted2CatsBest.py.
+
 
 Examples:
 
