@@ -1,0 +1,5 @@
+2018.07.31:  matchSortedStdObsCats.py seems to be behaving oddly for the
+             Y3A2_MISC_V2 and Y3A2_MISC_V3 matches to the FGCM standards,
+             not finding all the matches (indeed, seeming to be behaving
+             like matchSorted2CatsBest.py.
+
