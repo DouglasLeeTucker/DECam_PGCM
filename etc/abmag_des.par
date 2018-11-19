@@ -1,0 +1,23 @@
+# Plan file for abmag.py.
+#  Replace values with the word 'default' (no quotation marks)
+#  to make use of the default values for these parameters as 
+#  included in interstellar_rband.py.... 
+
+# Bandpass information:
+bandList  u,g,r,i,z,Y  #comma-separated list with no spaces
+bandpassFile  default
+
+# Object spectrum (Flam):
+#  spectrumType:  "flat" (Flam=const), "synphot", or "blackbody"
+#  spectrumFile:  be sure to include relative or full path if spectrumFile
+#                 is not in the current directory
+#                 (use a dummy value if spectrumType is "flat")
+#spectrumType flat
+#spectrumFile none
+#spectrumType synphot
+#spectrumFile /usrdevel/dp0/dtucker/SynphotData/grp/hst/cdbs/calspec/c26202_stisnic_001.fits
+spectrumFile /usrdevel/dp0/dtucker/SynphotData/grp/hst/cdbs/calspec/c26202_stisnic_007.fits
+spectrumType blackbody
+Teff 8901.        #only used for spectrumType="blackbody"
+a    0.640e-23    #only used for spectrumType="blackbody"; scale factor per Suzuki & Fukugita (2018)
+
