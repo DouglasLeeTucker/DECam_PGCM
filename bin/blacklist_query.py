@@ -6,9 +6,8 @@
     
     blacklist_query.py --help
 
-    blacklist_query.py --tag Y4A1_FINALCUT \
-                         --outputFile y4a1_rawdata.y4.blacklist.csv \
-                         --verbose 2
+    blacklist_query.py --outputFile y4a1_rawdata.y4.blacklist.csv \
+                       --verbose 2
     
     """
 
@@ -24,6 +23,7 @@ def main():
     parser.add_argument('--outputFile', help='name of an output file', default='output.csv')
     parser.add_argument('--expnumMin', help='Minimum value for EXPNUM', default=1, type=int)
     parser.add_argument('--expnumMax', help='Maximum value for EXPNUM', default=99999999, type=int)
+    parser.add_argument('--blacklistTable', help='name of blacklist table in DESDM db', default='prod.BLACKLIST')
     parser.add_argument('--verbose', help='verbosity level of output to screen (0,1,2,...)', default=0, type=int)
     args = parser.parse_args()
 
@@ -53,10 +53,10 @@ def blacklist_query(args):
 
     query="""
         select * 
-        from prod.blacklist 
+        from %s 
         where expnum between %d and %d
         order by expnum, ccdnum
-        """ % (args.expnumMin, args.expnumMax)
+        """ % (args.blacklistTable, args.expnumMin, args.expnumMax)
     
     if args.verbose>0: print query
     
