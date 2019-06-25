@@ -21,6 +21,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--inputFile', help='name of the input CSV file', default='input.csv')
     parser.add_argument('--outputFileBaseName', help='base name of the output CSV file for those methods with multiple similarly named output files', default='outputBaseName')
+    parser.add_argument('--magStdBaseName', help='base name of the FGCM std mag columns (e.g., for Y3A2, it was MAG_PSF; for Y6A1, it was MAG_STD)', default='MAG_PSF')
+    parser.add_argument('--magerrStdBaseName', help='base name of the FGCM std magerr columns (e.g., for Y3A2, it was MAG_PSF_ERR; for Y6A1, it was MAGERR_STD)', default='MAG_PSF_ERR')
     parser.add_argument('--band', help='name of filter band', default='g')
     parser.add_argument('--verbose', help='verbosity level of output to screen (0,1,2,...)', default=0, type=int)
     args = parser.parse_args()
@@ -45,6 +47,8 @@ def tie_to_fgcm_stds(args):
     outputFileBaseName = args.outputFileBaseName
     outputFilePSF = """%s.magpsf.csv""" % (outputFileBaseName)
     outputFileAper8 = """%s.magaper8.csv""" % (outputFileBaseName)
+    magStdBaseName = args.magStdBaseName
+    magerrStdBaseName = args.magerrStdBaseName
     band = args.band
 
     # Does input file exist for this band?
@@ -52,11 +56,10 @@ def tie_to_fgcm_stds(args):
         print """tie_to_stds input file %s does not exist.  Exiting...""" % (inputFile)
         return 1
 
-
     # Read selected columns from inputFile into a pandas DataFrame...
     print datetime.datetime.now()
-    magStd = """MAG_PSF_%s_1""" % (band.upper())
-    magerrStd = """MAG_PSF_ERR_%s_1""" % (band.upper())
+    magStd = """%s_%s_1""" % (magStdBaseName.upper(), band.upper())
+    magerrStd = """%s_%s_1""" % (magerrStdBaseName.upper(), band.upper())
     print """Reading in selected columns from %s as a pandas DataFrame...""" % (inputFile)
     dataFrame = pd.read_csv(inputFile, usecols=[magStd, magerrStd, "BAND_2", "EXPNUM_2", "FILENAME_2", "PFW_ATTEMPT_ID_2", "CCDNUM_2", "RA_WRAP_2", "DEC_2", "FLUX_PSF_2", "FLUXERR_PSF_2", "FLUX_APER_8_2", "FLUXERR_APER_8_2", "AIRMASS_2", "EXPTIME_2", "SKYTILT_2", "T_EFF_2", "CALNAC_2", "MJD_OBS_2"])
     print datetime.datetime.now()
