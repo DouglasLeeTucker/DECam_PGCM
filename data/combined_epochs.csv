@@ -31,9 +31,18 @@ Y3E1a,57234.6666667,57288.6666666,1,New processing epoch
 Y3E1b,57288.6666667,57372.6666666,2,Primary mirror washed
 Y3E1c,57372.6666667,57442.6666666,2,Primary mirror washed
 Y3E1d,57442.6666667,57456.6666666,3,C1 inside surface cleaned
-Y3E1e,57456.6666667,57586.6666666,2,Primary mirror washed
-Y4E1a,57586.6666667,57617.6666666,1,New processing epoch
+Y3E1e,57456.6666667,57613.6666666,2,Primary mirror washed
+Y4E1a,57613.6666667,57617.6666666,1,New processing epoch
 Y4E1b,57617.6666667,57743.6666666,2,Primary mirror washed
-Y4E1c,57743.6666667,57751.6666666,2,Primary mirror washed
-Y4E2a,57751.6666667,57834.6666666,1,New processing epoch
+Y4E1c,57743.6666667,57754.6666666,2,Primary mirror washed
+Y4E2a,57754.6666667,57834.6666666,1,New processing epoch
 Y4E2b,57834.6666667,57949.6666666,3,C1 cleaned inside and out
+
+Y5E1a,57979.6666667,.6666666,1,New processing epoch
+
+Y5E2a,58002.6666667,.6666666,1,New processing epoch
+
+Y6E1a,58310.6666667,.6666666,1,New processing epoch
+
+
+
